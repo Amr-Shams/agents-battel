@@ -397,6 +397,16 @@ header h1 {
   }
 }
 
+#error-message {
+  text-align: center;
+  color: #ff6b6b;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  border-radius: 8px;
+}
+
 .hidden {
   display: none !important;
 }

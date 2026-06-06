@@ -35,22 +35,16 @@
       </div>
     </div>
 
-    <form id="prompt-form"
-          hx-post="/api/prompts"
-          hx-ext="json-enc"
-          hx-target="#prompt-result"
-          hx-swap="innerHTML"
-          hx-on::after-request="onPromptSubmitted(event)">
+    <form id="prompt-form" onsubmit="handleSubmit(event)">
       <div class="form-row">
-        <input type="text" name="sessionId" placeholder="Session ID" value="default" class="session-input">
-        <input type="text" name="prompt" placeholder="Enter your prompt for the agents..." class="prompt-input" required>
-        <button type="submit" class="btn-battle">
+        <input type="text" id="session-input" placeholder="Session ID" value="default" class="session-input">
+        <input type="text" id="prompt-input" placeholder="Enter your prompt for the agents..." class="prompt-input" required>
+        <button type="submit" class="btn-battle" id="submit-btn">
           <span class="btn-text">Send to Battle</span>
-          <span class="htmx-indicator spinner"></span>
         </button>
       </div>
     </form>
-    <div id="prompt-result" class="hidden"></div>
+    <div id="error-message" class="hidden"></div>
 
     <div id="winner-announcement" class="winner-announcement hidden"></div>
 

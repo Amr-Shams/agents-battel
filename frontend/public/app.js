@@ -6,19 +6,41 @@ const state = {
   scores: { java: 0, golang: 0, rust: 0 },
 };
 
-function onPromptSubmitted(event) {
-  if (event.detail.failed) return;
-  try {
-    const data = JSON.parse(event.detail.xhr.responseText);
-    state.promptId = data.id;
-    state.roundActive = true;
-    state.winnerChosen = false;
-    document.getElementById('winner-announcement').classList.add('hidden');
-    document.getElementById('winner-announcement').textContent = '';
-    startRound();
-  } catch (e) {
-    console.error('Failed to parse prompt response', e);
-  }
+function handleSubmit(event) {
+  event.preventDefault();
+  const sessionId = document.getElementById('session-input').value || 'default';
+  const prompt = document.getElementById('prompt-input').value;
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+
+  fetch('/api/prompts', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sessionId, prompt }),
+  })
+    .then(r => {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(data => {
+      state.promptId = data.id;
+      state.roundActive = true;
+      state.winnerChosen = false;
+      document.getElementById('winner-announcement').classList.add('hidden');
+      document.getElementById('winner-announcement').textContent = '';
+      document.getElementById('error-message').classList.add('hidden');
+      btn.disabled = false;
+      btn.innerHTML = '<span class="btn-text">Send to Battle</span>';
+      startRound();
+    })
+    .catch(err => {
+      btn.disabled = false;
+      btn.innerHTML = '<span class="btn-text">Send to Battle</span>';
+      const el = document.getElementById('error-message');
+      el.textContent = 'Failed to send prompt: ' + err.message;
+      el.classList.remove('hidden');
+    });
 }
 
 function startRound() {
