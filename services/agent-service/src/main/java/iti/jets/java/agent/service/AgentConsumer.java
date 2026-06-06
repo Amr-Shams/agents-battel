@@ -32,18 +32,26 @@ public class AgentConsumer {
         String userPrompt = (String) prompt.get("prompt");
         String promptId = (String) prompt.get("id");
 
-        String result = deepSeekService.chat(
-                agentConfig.getSystemPrompt(),
-                userPrompt,
-                agentConfig.getTemperature(),
-                agentConfig.getMaxTokens()
-        );
+        String result;
+        String status;
+        try {
+            result = deepSeekService.chat(
+                    agentConfig.getSystemPrompt(),
+                    userPrompt,
+                    agentConfig.getTemperature(),
+                    agentConfig.getMaxTokens()
+            );
+            status = "completed";
+        } catch (Exception e) {
+            result = e.getMessage();
+            status = "error";
+        }
 
         Map<String, Object> response = Map.of(
                 "promptId", promptId,
                 "agentType", agentConfig.getType(),
                 "result", result,
-                "status", "completed",
+                "status", status,
                 "timestamp", Instant.now().toString()
         );
 
