@@ -1,20 +1,22 @@
-# battle-of-agents
+# agents-battel
 
-Fan-out prompt router. One prompt → N personality-configured agents → DeepSeek API → collect + compare responses.
+microservice arch project, that separate the deployment form the volume(state) and keeps the arch scalabel as much as possible.
+solving non-byzantine issues, and covering the fundmental battle between languges.i used the cheapest model outhere(i am borke tbh).
+you are open to fork and make your own oc(but mention me ;)
 
+as a local first advocate, the setup is quite simple 
 ## local start as always
 ```bash
 echo "DEEPSEEK_API_KEY=sk-..." > .env
 docker compose up --build
 ```
 
-Open http://localhost:8080. All services start in dependency order:
-1. RabbitMQ + Redis
-2. 3 agents (healthcheck passes when actuator + RabbitMQ connection is UP)
-3. prompt-service + response-service
-4. Frontend
+Open http://localhost:8080. and enjoy the game
 
-
+## Arch 
+<p align="center">
+  <img src="docs/arch.png" alt="Architecture" width="700"/>
+</p>
 
 ## Agent configuration
 
@@ -79,7 +81,3 @@ Requires a Secret with `deepseek-api-key`:
 ```bash
 kubectl create secret generic deepseek-api-key --from-literal=api-key=sk-... -n prompts
 ```
-
-## Frontend game
-
-After all 3 agents respond, the user picks the best answer. Scores persist per session (in-memory JS, reset on page reload).
