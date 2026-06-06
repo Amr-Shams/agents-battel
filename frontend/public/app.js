@@ -76,19 +76,25 @@ function startPolling() {
   pollResponses();
 }
 
+const EXPECTED_AGENTS = ['java', 'golang', 'rust'];
+
 function pollResponses() {
   if (!state.promptId) return;
   fetch(`/api/responses/${state.promptId}`)
     .then(r => r.json())
     .then(data => {
       data.responses.forEach(r => updateAgentCard(r));
-      const allDone = data.responses.every(r => r.status === 'completed');
+      const respondedTypes = data.responses.map(r => r.agentType);
+      const allPresent = EXPECTED_AGENTS.every(a => respondedTypes.includes(a));
+      const allDone = allPresent && data.responses.every(r => r.status === 'completed');
       if (allDone && state.roundActive) {
         state.roundActive = false;
         clearInterval(state.pollTimer);
         state.pollTimer = null;
         setStatus('All agents have responded. Select the best answer.');
         enablePickButtons();
+      } else if (!state.roundActive) {
+        data.responses.forEach(r => updateAgentCard(r));
       }
     })
     .catch(() => {});

@@ -7,6 +7,7 @@ COPY services/agent-service/src services/agent-service/src
 RUN mvn -f services/agent-service/pom.xml package -DskipTests
 
 FROM eclipse-temurin:21-jre-alpine
+RUN apk add --no-cache curl
 COPY --from=build /build/services/agent-service/target/agent-service*.jar app.jar
 EXPOSE 8005
 ENTRYPOINT ["java", "-jar", "/app.jar"]

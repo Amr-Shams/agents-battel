@@ -63,11 +63,11 @@ services:
     volumes:
       - ./configs/agent-java.yml:/config/agent.yml
     healthcheck:
-      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:8005/actuator/health"]
-      interval: 5s
-      timeout: 3s
-      retries: 15
-      start_period: 10s
+      test: ["CMD", "curl", "-f", "http://localhost:8005/actuator/health"]
+      interval: 3s
+      timeout: 2s
+      retries: 20
+      start_period: 8s
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -84,11 +84,11 @@ services:
     volumes:
       - ./configs/agent-golang.yml:/config/agent.yml
     healthcheck:
-      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:8005/actuator/health"]
-      interval: 5s
-      timeout: 3s
-      retries: 15
-      start_period: 10s
+      test: ["CMD", "curl", "-f", "http://localhost:8005/actuator/health"]
+      interval: 3s
+      timeout: 2s
+      retries: 20
+      start_period: 8s
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -105,11 +105,11 @@ services:
     volumes:
       - ./configs/agent-rust.yml:/config/agent.yml
     healthcheck:
-      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:8005/actuator/health"]
-      interval: 5s
-      timeout: 3s
-      retries: 15
-      start_period: 10s
+      test: ["CMD", "curl", "-f", "http://localhost:8005/actuator/health"]
+      interval: 3s
+      timeout: 2s
+      retries: 20
+      start_period: 8s
     depends_on:
       rabbitmq:
         condition: service_healthy
