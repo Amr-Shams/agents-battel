@@ -18,6 +18,10 @@ Thumbs.db
 # Domain context
 CONTEXT.md
 
+# Env / secrets
+.env
+.env.local
+
 # Eclipse / IDE
 .factorypath
 .apt_generated
