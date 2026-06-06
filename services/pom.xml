@@ -14,10 +14,4 @@
     <artifactId>services</artifactId>
     <packaging>pom</packaging>
 
-    <modules>
-        <module>prompt-service</module>
-        <module>response-service</module>
-        <module>agent-service</module>
-    </modules>
-
 </project>

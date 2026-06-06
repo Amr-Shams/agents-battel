@@ -11,7 +11,9 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>services</module>
+        <module>services/prompt-service</module>
+        <module>services/response-service</module>
+        <module>services/agent-service</module>
     </modules>
 
     <properties>
