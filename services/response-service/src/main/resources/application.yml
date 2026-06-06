@@ -1,0 +1,29 @@
+server:
+  port: ${PORT:8004}
+
+spring:
+  application:
+    name: response-service
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: 6379
+  cloud:
+    function:
+      definition: responseInput
+    stream:
+      bindings:
+        responseInput-in-0:
+          destination: response.exchange
+          group: response-service
+          contentType: application/json
+      rabbit:
+        bindings:
+          responseInput-in-0:
+            consumer:
+              exchangeType: fanout
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: 5672
+    username: guest
+    password: guest

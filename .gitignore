@@ -1,0 +1,23 @@
+target/
+*.class
+*.jar
+*.war
+*.log
+
+.idea/
+*.iml
+.settings/
+.project
+.classpath
+.sonarlint/
+
+node_modules/
+.DS_Store
+Thumbs.db
+
+# Domain context
+CONTEXT.md
+
+# Eclipse / IDE
+.factorypath
+.apt_generated

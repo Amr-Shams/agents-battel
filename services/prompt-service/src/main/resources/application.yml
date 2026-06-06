@@ -1,0 +1,22 @@
+server:
+  port: ${PORT:8003}
+
+spring:
+  application:
+    name: prompt-service
+  cloud:
+    stream:
+      bindings:
+        promptOutput:
+          destination: prompt.exchange
+          contentType: application/json
+      rabbit:
+        bindings:
+          promptOutput:
+            producer:
+              exchangeType: fanout
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: 5672
+    username: guest
+    password: guest

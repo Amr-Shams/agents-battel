@@ -1,0 +1,33 @@
+server:
+  port: ${PORT:8005}
+
+spring:
+  application:
+    name: agent-service
+  config:
+    import: "optional:file:${AGENT_CONFIG_PATH:/etc/agent/agent.yml}"
+  cloud:
+    function:
+      definition: promptInput
+    stream:
+      bindings:
+        promptInput-in-0:
+          destination: prompt.exchange
+          group: ${AGENT_TYPE:agent-default}
+          contentType: application/json
+        agentOutput:
+          destination: response.exchange
+          contentType: application/json
+      rabbit:
+        bindings:
+          promptInput-in-0:
+            consumer:
+              exchangeType: fanout
+          agentOutput:
+            producer:
+              exchangeType: fanout
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: 5672
+    username: guest
+    password: guest

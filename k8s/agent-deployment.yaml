@@ -1,0 +1,164 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agent-java
+  namespace: prompts
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: agent
+      agent-type: java
+  template:
+    metadata:
+      labels:
+        app: agent
+        agent-type: java
+    spec:
+      containers:
+        - name: agent
+          image: agent-service:latest
+          ports:
+            - containerPort: 8005
+          env:
+            - name: RABBITMQ_HOST
+              value: rabbitmq
+            - name: AGENT_TYPE
+              value: java
+            - name: AGENT_CONFIG_PATH
+              value: /etc/agent/agent.yml
+            - name: DEEPSEEK_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: deepseek-api-key
+                  key: api-key
+          volumeMounts:
+            - name: config
+              mountPath: /etc/agent/agent.yml
+              subPath: agent.yml
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8005
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8005
+            initialDelaySeconds: 15
+            periodSeconds: 5
+      volumes:
+        - name: config
+          configMap:
+            name: agent-java-config
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agent-golang
+  namespace: prompts
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: agent
+      agent-type: golang
+  template:
+    metadata:
+      labels:
+        app: agent
+        agent-type: golang
+    spec:
+      containers:
+        - name: agent
+          image: agent-service:latest
+          ports:
+            - containerPort: 8005
+          env:
+            - name: RABBITMQ_HOST
+              value: rabbitmq
+            - name: AGENT_TYPE
+              value: golang
+            - name: AGENT_CONFIG_PATH
+              value: /etc/agent/agent.yml
+            - name: DEEPSEEK_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: deepseek-api-key
+                  key: api-key
+          volumeMounts:
+            - name: config
+              mountPath: /etc/agent/agent.yml
+              subPath: agent.yml
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8005
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8005
+            initialDelaySeconds: 15
+            periodSeconds: 5
+      volumes:
+        - name: config
+          configMap:
+            name: agent-golang-config
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agent-rust
+  namespace: prompts
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: agent
+      agent-type: rust
+  template:
+    metadata:
+      labels:
+        app: agent
+        agent-type: rust
+    spec:
+      containers:
+        - name: agent
+          image: agent-service:latest
+          ports:
+            - containerPort: 8005
+          env:
+            - name: RABBITMQ_HOST
+              value: rabbitmq
+            - name: AGENT_TYPE
+              value: rust
+            - name: AGENT_CONFIG_PATH
+              value: /etc/agent/agent.yml
+            - name: DEEPSEEK_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: deepseek-api-key
+                  key: api-key
+          volumeMounts:
+            - name: config
+              mountPath: /etc/agent/agent.yml
+              subPath: agent.yml
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8005
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8005
+            initialDelaySeconds: 15
+            periodSeconds: 5
+      volumes:
+        - name: config
+          configMap:
+            name: agent-rust-config

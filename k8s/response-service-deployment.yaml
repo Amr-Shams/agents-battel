@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: response-service
+  namespace: prompts
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: response-service
+  template:
+    metadata:
+      labels:
+        app: response-service
+    spec:
+      containers:
+        - name: response-service
+          image: response-service:latest
+          ports:
+            - containerPort: 8004
+          env:
+            - name: RABBITMQ_HOST
+              value: rabbitmq
+            - name: REDIS_HOST
+              value: redis
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8004
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8004
+            initialDelaySeconds: 15
+            periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: response-service
+  namespace: prompts
+spec:
+  selector:
+    app: response-service
+  ports:
+    - port: 8004
+      targetPort: 8004

@@ -1,0 +1,95 @@
+version: "3.8"
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  prompt-service:
+    build:
+      context: .
+      dockerfile: services/prompt-service/Dockerfile
+    ports:
+      - "8003:8003"
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  response-service:
+    build:
+      context: .
+      dockerfile: services/response-service/Dockerfile
+    ports:
+      - "8004:8004"
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - REDIS_HOST=redis
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  agent-java:
+    build:
+      context: .
+      dockerfile: services/agent-service/Dockerfile
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - AGENT_TYPE=java
+      - AGENT_CONFIG_PATH=/config/agent.yml
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+    volumes:
+      - ./configs/agent-java.yml:/config/agent.yml
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  agent-golang:
+    build:
+      context: .
+      dockerfile: services/agent-service/Dockerfile
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - AGENT_TYPE=golang
+      - AGENT_CONFIG_PATH=/config/agent.yml
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+    volumes:
+      - ./configs/agent-golang.yml:/config/agent.yml
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  agent-rust:
+    build:
+      context: .
+      dockerfile: services/agent-service/Dockerfile
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - AGENT_TYPE=rust
+      - AGENT_CONFIG_PATH=/config/agent.yml
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+    volumes:
+      - ./configs/agent-rust.yml:/config/agent.yml
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
