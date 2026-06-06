@@ -4,92 +4,59 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Battle of Agents</title>
-  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
   <div class="container">
     <header>
       <h1>Battle of Agents</h1>
-      <p class="subtitle">Submit a prompt, watch 3 AI personalities compete, crown the winner!</p>
+      <p class="subtitle">Submit a prompt, read three AI perspectives, then pick the best.</p>
     </header>
 
     <div class="scoreboard" id="scoreboard">
-      <div class="score" data-agent="java">
-        <span class="score-icon">☕</span>
-        <span class="score-label">Java</span>
-        <span class="score-count">0</span>
-        <span class="score-trophy">🏆</span>
-      </div>
-      <div class="score" data-agent="golang">
-        <span class="score-icon">🐹</span>
-        <span class="score-label">Go</span>
-        <span class="score-count">0</span>
-        <span class="score-trophy">🏆</span>
-      </div>
-      <div class="score" data-agent="rust">
-        <span class="score-icon">🦀</span>
-        <span class="score-label">Rust</span>
-        <span class="score-count">0</span>
-        <span class="score-trophy">🏆</span>
-      </div>
+      <span class="score" data-agent="java">Java: <span class="score-count">0</span></span>
+      <span class="sep">·</span>
+      <span class="score" data-agent="golang">Go: <span class="score-count">0</span></span>
+      <span class="sep">·</span>
+      <span class="score" data-agent="rust">Rust: <span class="score-count">0</span></span>
     </div>
 
     <form id="prompt-form" onsubmit="handleSubmit(event)">
       <div class="form-row">
-        <input type="text" id="session-input" placeholder="Session ID" value="default" class="session-input">
+        <input type="text" id="session-input" placeholder="Session" value="default" class="session-input">
         <input type="text" id="prompt-input" placeholder="Enter your prompt for the agents..." class="prompt-input" required>
-        <button type="submit" class="btn-battle" id="submit-btn">
-          <span class="btn-text">Send to Battle</span>
-        </button>
+        <button type="submit" class="btn-submit" id="submit-btn">Send</button>
       </div>
     </form>
-    <div id="error-message" class="hidden"></div>
 
-    <div id="winner-announcement" class="winner-announcement hidden"></div>
+    <div id="status-message" class="status-message"></div>
+    <div id="error-message" class="error hidden"></div>
 
     <div class="arena" id="arena">
       <div class="agent-card" data-agent="java">
-        <div class="card-header java">
-          <span class="agent-icon">☕</span>
-          <span class="agent-name">Java</span>
-          <span class="agent-status">Waiting</span>
-        </div>
-        <div class="response-body">Enter a prompt and send to battle!</div>
-        <button class="crown-btn" data-agent="java" disabled>
-          <span class="crown-icon">👑</span> Crown Winner
-        </button>
+        <div class="card-header">Java</div>
+        <div class="response-body" id="response-java"></div>
+        <button class="pick-btn" data-agent="java" disabled>Select as Best</button>
       </div>
       <div class="agent-card" data-agent="golang">
-        <div class="card-header golang">
-          <span class="agent-icon">🐹</span>
-          <span class="agent-name">Go</span>
-          <span class="agent-status">Waiting</span>
-        </div>
-        <div class="response-body">Enter a prompt and send to battle!</div>
-        <button class="crown-btn" data-agent="golang" disabled>
-          <span class="crown-icon">👑</span> Crown Winner
-        </button>
+        <div class="card-header">Go</div>
+        <div class="response-body" id="response-golang"></div>
+        <button class="pick-btn" data-agent="golang" disabled>Select as Best</button>
       </div>
       <div class="agent-card" data-agent="rust">
-        <div class="card-header rust">
-          <span class="agent-icon">🦀</span>
-          <span class="agent-name">Rust</span>
-          <span class="agent-status">Waiting</span>
-        </div>
-        <div class="response-body">Enter a prompt and send to battle!</div>
-        <button class="crown-btn" data-agent="rust" disabled>
-          <span class="crown-icon">👑</span> Crown Winner
-        </button>
+        <div class="card-header">Rust</div>
+        <div class="response-body" id="response-rust"></div>
+        <button class="pick-btn" data-agent="rust" disabled>Select as Best</button>
       </div>
     </div>
 
-    <div class="controls" id="controls">
+    <div id="winner-announcement" class="winner-announcement hidden"></div>
+
+    <div class="controls">
       <button id="new-round-btn" class="btn-new-round" onclick="newRound()">New Prompt</button>
     </div>
   </div>
-
-  <div id="confetti-container"></div>
   <script src="/app.js"></script>
 </body>
 </html>
