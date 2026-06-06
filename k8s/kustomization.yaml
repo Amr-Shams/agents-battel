@@ -12,3 +12,4 @@ resources:
   - agent-configmaps.yaml
   - agent-secret.yaml
   - agent-deployment.yaml
+  - frontend-deployment.yaml

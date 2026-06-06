@@ -16,7 +16,9 @@ export DEEPSEEK_API_KEY=sk-your-key-here
 docker compose up
 ```
 
-This starts RabbitMQ, Redis, prompt-service (8003), response-service (8004), and three agents (java, golang, rust).
+This starts RabbitMQ, Redis, prompt-service (8003), response-service (8004), three agents, and a frontend at **http://localhost:8080**.
+
+Open the browser, enter a prompt, and crown the winning agent.
 
 ### How it works
 

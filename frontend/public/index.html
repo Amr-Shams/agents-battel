@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Battle of Agents</title>
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Battle of Agents</h1>
+      <p class="subtitle">Submit a prompt, watch 3 AI personalities compete, crown the winner!</p>
+    </header>
+
+    <div class="scoreboard" id="scoreboard">
+      <div class="score" data-agent="java">
+        <span class="score-icon">☕</span>
+        <span class="score-label">Java</span>
+        <span class="score-count">0</span>
+        <span class="score-trophy">🏆</span>
+      </div>
+      <div class="score" data-agent="golang">
+        <span class="score-icon">🐹</span>
+        <span class="score-label">Go</span>
+        <span class="score-count">0</span>
+        <span class="score-trophy">🏆</span>
+      </div>
+      <div class="score" data-agent="rust">
+        <span class="score-icon">🦀</span>
+        <span class="score-label">Rust</span>
+        <span class="score-count">0</span>
+        <span class="score-trophy">🏆</span>
+      </div>
+    </div>
+
+    <form id="prompt-form"
+          hx-post="/api/prompts"
+          hx-ext="json-enc"
+          hx-target="#prompt-result"
+          hx-swap="innerHTML"
+          hx-on::after-request="onPromptSubmitted(event)">
+      <div class="form-row">
+        <input type="text" name="sessionId" placeholder="Session ID" value="default" class="session-input">
+        <input type="text" name="prompt" placeholder="Enter your prompt for the agents..." class="prompt-input" required>
+        <button type="submit" class="btn-battle">
+          <span class="btn-text">Send to Battle</span>
+          <span class="htmx-indicator spinner"></span>
+        </button>
+      </div>
+    </form>
+    <div id="prompt-result" class="hidden"></div>
+
+    <div id="winner-announcement" class="winner-announcement hidden"></div>
+
+    <div class="arena" id="arena">
+      <div class="agent-card" data-agent="java">
+        <div class="card-header java">
+          <span class="agent-icon">☕</span>
+          <span class="agent-name">Java</span>
+          <span class="agent-status">Waiting</span>
+        </div>
+        <div class="response-body">Enter a prompt and send to battle!</div>
+        <button class="crown-btn" data-agent="java" disabled>
+          <span class="crown-icon">👑</span> Crown Winner
+        </button>
+      </div>
+      <div class="agent-card" data-agent="golang">
+        <div class="card-header golang">
+          <span class="agent-icon">🐹</span>
+          <span class="agent-name">Go</span>
+          <span class="agent-status">Waiting</span>
+        </div>
+        <div class="response-body">Enter a prompt and send to battle!</div>
+        <button class="crown-btn" data-agent="golang" disabled>
+          <span class="crown-icon">👑</span> Crown Winner
+        </button>
+      </div>
+      <div class="agent-card" data-agent="rust">
+        <div class="card-header rust">
+          <span class="agent-icon">🦀</span>
+          <span class="agent-name">Rust</span>
+          <span class="agent-status">Waiting</span>
+        </div>
+        <div class="response-body">Enter a prompt and send to battle!</div>
+        <button class="crown-btn" data-agent="rust" disabled>
+          <span class="crown-icon">👑</span> Crown Winner
+        </button>
+      </div>
+    </div>
+
+    <div class="controls" id="controls">
+      <button id="new-round-btn" class="btn-new-round" onclick="newRound()">New Prompt</button>
+    </div>
+  </div>
+
+  <div id="confetti-container"></div>
+  <script src="/app.js"></script>
+</body>
+</html>
