@@ -46,11 +46,18 @@ Add a new agent: create a config file, add a service block in `docker-compose.ym
 ## Services
 
 | Service | Port | Role |
-|---|---|---|
+|---|---|---|---|
+| discovery-service | 8761 | Eureka service registry |
+| gateway-service | 8060 | Spring Cloud Gateway (routes via Eureka) |
 | prompt-service | 8003 | REST entry point, publishes to prompt.exchange |
 | response-service | 8004 | Consumes response.exchange, Redis CRUD, GET endpoint |
 | agent-service | 8005 | Message-driven, calls DeepSeek API, publishes result |
-| frontend | 8080 | Nginx reverse proxy + static assets |
+| frontend | 8080 | Nginx reverse proxy → gateway-service |
+| prometheus | 9090 | Metrics collection (scrapes /actuator/prometheus) |
+| grafana | 3000 | Dashboards (Prometheus + Loki datasources) |
+| loki | 3100 | Centralized log aggregation |
+| rabbitmq | 5672 / 15672 | Message broker / Management UI |
+| redis | 6379 | Response cache (HSET/HGETALL) |
 
 ## Environment variables
 
@@ -61,6 +68,19 @@ Add a new agent: create a config file, add a service block in `docker-compose.ym
 | `REDIS_HOST` | no | localhost | response-service |
 | `AGENT_TYPE` | yes | — | agent-service (group name, must match config) |
 | `AGENT_CONFIG_PATH` | no | /etc/agent/agent.yml | agent-service |
+| `EUREKA_CLIENT_SERVICEURL_DEFAULTZONE` | no | http://localhost:8761/eureka/ | all services |
+
+## Monitoring
+
+All Spring Boot services expose `/actuator/prometheus` for Prometheus scraping.
+Prometheus scrapes via static targets in `monitoring/prometheus.yml`.
+
+- **Prometheus** → http://localhost:9090
+- **Grafana** → http://localhost:3000 (admin/admin)
+- **Loki** → http://localhost:3100 (log queries from Grafana)
+
+Promtail reads Docker container logs and ships them to Loki.
+Grafana comes pre-configured with Prometheus and Loki datasources.
 
 ## Deployment
 
