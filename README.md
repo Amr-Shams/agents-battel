@@ -7,6 +7,7 @@ you are open to fork and make your own oc(but mention me ;)
 <p align="center">
   <img src="docs/battle.png" alt="Battle of agents" width="800"/>
 </p>
+
 as a local first advocate, the setup is quite simple 
 ## local start as always
 ```bash
