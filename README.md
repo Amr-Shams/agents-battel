@@ -3,7 +3,10 @@
 microservice arch project, that separate the deployment form the volume(state) and keeps the arch scalabel as much as possible.
 solving non-byzantine issues, and covering the fundmental battle between languges.i used the cheapest model outhere(i am borke tbh).
 you are open to fork and make your own oc(but mention me ;)
-
+ 
+<p align="center">
+  <img src="docs/battle.png" alt="Battle of agents" width="800"/>
+</p>
 as a local first advocate, the setup is quite simple 
 ## local start as always
 ```bash
@@ -15,7 +18,7 @@ Open http://localhost:8080. and enjoy the game
 
 ## Arch 
 <p align="center">
-  <img src="docs/arch.png" alt="Architecture" width="700"/>
+  <img src="docs/arch.png" alt="Architecture" width="800"/>
 </p>
 
 ## Agent configuration
