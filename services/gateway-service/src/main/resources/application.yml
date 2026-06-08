@@ -1,0 +1,36 @@
+server:
+  port: ${PORT:8060}
+
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      routes:
+        - id: prompt-route
+          uri: lb://prompt-service
+          predicates:
+            - Path=/api/prompts/**
+        - id: response-route
+          uri: lb://response-service
+          predicates:
+            - Path=/api/responses/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,prometheus
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: true
+    metadata-map:
+      prometheus.port: ${server.port}
