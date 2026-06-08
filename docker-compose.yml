@@ -20,6 +20,31 @@ services:
       timeout: 3s
       retries: 5
 
+  discovery-service:
+    build:
+      context: .
+      dockerfile: services/discovery-service/Dockerfile
+    ports:
+      - "8761:8761"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+
+  gateway-service:
+    build:
+      context: .
+      dockerfile: services/gateway-service/Dockerfile
+    ports:
+      - "8060:8060"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+
   prompt-service:
     build:
       context: .
@@ -28,7 +53,10 @@ services:
       - "8003:8003"
     environment:
       - RABBITMQ_HOST=rabbitmq
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
     depends_on:
+      discovery-service:
+        condition: service_healthy
       agent-java:
         condition: service_healthy
       agent-golang:
@@ -45,7 +73,10 @@ services:
     environment:
       - RABBITMQ_HOST=rabbitmq
       - REDIS_HOST=redis
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
     depends_on:
+      discovery-service:
+        condition: service_healthy
       rabbitmq:
         condition: service_healthy
       redis:
@@ -60,6 +91,7 @@ services:
       - AGENT_TYPE=java
       - AGENT_CONFIG_PATH=/config/agent.yml
       - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
     volumes:
       - ./configs/agent-java.yml:/config/agent.yml
     healthcheck:
@@ -69,6 +101,8 @@ services:
       retries: 20
       start_period: 8s
     depends_on:
+      discovery-service:
+        condition: service_healthy
       rabbitmq:
         condition: service_healthy
 
@@ -81,6 +115,7 @@ services:
       - AGENT_TYPE=golang
       - AGENT_CONFIG_PATH=/config/agent.yml
       - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
     volumes:
       - ./configs/agent-golang.yml:/config/agent.yml
     healthcheck:
@@ -90,6 +125,8 @@ services:
       retries: 20
       start_period: 8s
     depends_on:
+      discovery-service:
+        condition: service_healthy
       rabbitmq:
         condition: service_healthy
 
@@ -102,6 +139,7 @@ services:
       - AGENT_TYPE=rust
       - AGENT_CONFIG_PATH=/config/agent.yml
       - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
     volumes:
       - ./configs/agent-rust.yml:/config/agent.yml
     healthcheck:
@@ -111,13 +149,63 @@ services:
       retries: 20
       start_period: 8s
     depends_on:
+      discovery-service:
+        condition: service_healthy
       rabbitmq:
         condition: service_healthy
+
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    depends_on:
+      - gateway-service
+      - prompt-service
+      - response-service
+      - agent-java
+
+  grafana:
+    image: grafana/grafana:11.1.0
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_INSTALL_PLUGINS=
+    volumes:
+      - ./monitoring/grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
+      - ./monitoring/grafana-dashboards:/etc/grafana/provisioning/dashboards:ro
+    depends_on:
+      - prometheus
+      - loki
+
+  loki:
+    image: grafana/loki:3.0.0
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./monitoring/loki-config.yml:/etc/loki/loki-config.yml:ro
+      - loki-data:/loki
+    command: -config.file=/etc/loki/loki-config.yml
+
+  promtail:
+    image: grafana/promtail:3.0.0
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - ./monitoring/promtail-config.yml:/etc/promtail/promtail-config.yml:ro
+    command: -config.file=/etc/promtail/promtail-config.yml
+    depends_on:
+      - loki
 
   frontend:
     build: ./frontend
     ports:
       - "8080:80"
     depends_on:
-      - prompt-service
-      - response-service
+      - gateway-service
+
+volumes:
+  loki-data:
