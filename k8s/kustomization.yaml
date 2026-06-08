@@ -8,6 +8,8 @@ resources:
   - redis-deployment.yaml
   - prompt-service-deployment.yaml
   - response-service-deployment.yaml
+  - discovery-service-deployment.yaml
+  - gateway-service-deployment.yaml
   - prompt-ingress.yaml
   - agent-configmaps.yaml
   - agent-secret.yaml
