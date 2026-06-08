@@ -46,18 +46,18 @@ Add a new agent: create a config file, add a service block in `docker-compose.ym
 ## Services
 
 | Service | Port | Role |
-|---|---|---|---|
+|-----------|------|------|
 | discovery-service | 8761 | Eureka service registry |
 | gateway-service | 8060 | Spring Cloud Gateway (routes via Eureka) |
-| prompt-service | 8003 | REST entry point, publishes to prompt.exchange |
-| response-service | 8004 | Consumes response.exchange, Redis CRUD, GET endpoint |
+| prompt-service | 8003 | REST entry point, publishes to `prompt.exchange` |
+| response-service | 8004 | Consumes `response.exchange`, Redis CRUD, GET endpoint |
 | agent-service | 8005 | Message-driven, calls DeepSeek API, publishes result |
 | frontend | 8080 | Nginx reverse proxy → gateway-service |
-| prometheus | 9090 | Metrics collection (scrapes /actuator/prometheus) |
+| prometheus | 9090 | Metrics collection (scrapes `/actuator/prometheus`) |
 | grafana | 3000 | Dashboards (Prometheus + Loki datasources) |
 | loki | 3100 | Centralized log aggregation |
 | rabbitmq | 5672 / 15672 | Message broker / Management UI |
-| redis | 6379 | Response cache (HSET/HGETALL) |
+| redis | 6379 | Response cache (`HSET`/`HGETALL`) |
 
 ## Environment variables
 
