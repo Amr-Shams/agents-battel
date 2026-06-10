@@ -58,7 +58,8 @@ Add a new agent: create a config file, add a service block in `docker-compose.ym
 | agent-service | 8005 | Message-driven, calls DeepSeek API, publishes result |
 | frontend | 8080 | Nginx reverse proxy → gateway-service |
 | prometheus | 9090 | Metrics collection (scrapes `/actuator/prometheus`) |
-| grafana | 3000 | Dashboards (Prometheus + Loki datasources) |
+| grafana | 3000 | Dashboards (Prometheus + Loki + Tempo datasources) |
+| tempo | 3200 / 4318 | Distributed trace storage (receives OTLP) |
 | loki | 3100 | Centralized log aggregation |
 | rabbitmq | 5672 / 15672 | Message broker / Management UI |
 | redis | 6379 | Response cache (`HSET`/`HGETALL`) |
@@ -74,17 +75,30 @@ Add a new agent: create a config file, add a service block in `docker-compose.ym
 | `AGENT_CONFIG_PATH` | no | /etc/agent/agent.yml | agent-service |
 | `EUREKA_CLIENT_SERVICEURL_DEFAULTZONE` | no | http://localhost:8761/eureka/ | all services |
 
-## Monitoring
+## Monitoring & Tracing
 
-All Spring Boot services expose `/actuator/prometheus` for Prometheus scraping.
-Prometheus scrapes via static targets in `monitoring/prometheus.yml`.
+All Spring Boot services expose `/actuator/prometheus` for Prometheus scraping
+and send **distributed traces** via OTLP to Grafana Tempo.
 
 - **Prometheus** → http://localhost:9090
 - **Grafana** → http://localhost:3000 (admin/admin)
+- **Tempo** → OTLP on `:4318`, query traces from Grafana
 - **Loki** → http://localhost:3100 (log queries from Grafana)
 
 Promtail reads Docker container logs and ships them to Loki.
-Grafana comes pre-configured with Prometheus and Loki datasources.
+Grafana comes pre-configured with Prometheus, Loki, and Tempo datasources.
+
+### Trace flow
+
+```
+Browser → Gateway → prompt-service → RabbitMQ → agent-service → DeepSeek
+         ↓           ↓                 ↓           ↓
+         └────────────────────── OTLP ──────────────────────→ Tempo → Grafana
+```
+
+Traces propagate automatically through HTTP headers (`traceparent`) and
+RabbitMQ message headers. Every service hop appears as a span in the waterfall.
+Log lines carry `trace_id` for correlation.
 
 ## Deployment
 
