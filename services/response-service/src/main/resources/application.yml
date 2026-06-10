@@ -17,10 +17,16 @@ spring:
           destination: response.exchange
           group: response-service
           contentType: application/json
+        promptOutput:
+          destination: prompt.exchange
+          contentType: application/json
       rabbit:
         bindings:
           responseInput-in-0:
             consumer:
+              exchangeType: fanout
+          promptOutput:
+            producer:
               exchangeType: fanout
   rabbitmq:
     host: ${RABBITMQ_HOST:localhost}

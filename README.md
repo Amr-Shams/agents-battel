@@ -62,7 +62,7 @@ Add a new agent: create a config file, add a service block in `docker-compose.ym
 | tempo | 3200 / 4318 | Distributed trace storage (receives OTLP) |
 | loki | 3100 | Centralized log aggregation |
 | rabbitmq | 5672 / 15672 | Message broker / Management UI |
-| redis | 6379 | Response cache (`HSET`/`HGETALL`) |
+| redis | 6379 | Response cache (`HSET`/`HGETALL`, immutable history `java:0`, `java:1`, ...) |
 
 ## Environment variables
 
@@ -74,6 +74,8 @@ Add a new agent: create a config file, add a service block in `docker-compose.ym
 | `AGENT_TYPE` | yes | — | agent-service (group name, must match config) |
 | `AGENT_CONFIG_PATH` | no | /etc/agent/agent.yml | agent-service |
 | `EUREKA_CLIENT_SERVICEURL_DEFAULTZONE` | no | http://localhost:8761/eureka/ | all services |
+| `APP_MAX_LOOPS` | no | 2 | response-service (refinement rounds) |
+| `APP_AGENT_TYPES` | no | java,golang,rust | response-service (expected agents) |
 
 ## Monitoring & Tracing
 
@@ -99,6 +101,35 @@ Browser → Gateway → prompt-service → RabbitMQ → agent-service → DeepSe
 Traces propagate automatically through HTTP headers (`traceparent`) and
 RabbitMQ message headers. Every service hop appears as a span in the waterfall.
 Log lines carry `trace_id` for correlation.
+
+## Prompt Looping
+
+Agents refine their answers through iterative rounds. After all agents respond, their answers are fed back as context for a refinement round.
+
+**Flow**:
+
+```
+User → prompt-service → prompt.exchange → agents (loop 0)
+                                            ↓
+                                     response.exchange
+                                            ↓
+                                  response-service (stores java:0, golang:0, rust:0)
+                                            ↓
+                              loop-back: publishes to prompt.exchange
+                              with previousResponses {java, golang, rust}
+                                            ↓
+                                  agents refine (loop 1)
+                                            ↓
+                                     response.exchange
+                                            ↓
+                                  response-service (stores java:1, golang:1, rust:1)
+                                            ↓
+                                  frontend: done = true
+```
+
+- Responses are **immutable** — each loop creates a new Redis field (`java:0`, `java:1`, …)
+- `app.max-loops=2` means 1 initial + 1 refinement (configurable)
+- The loop-back bypasses prompt-service — response-service publishes directly to `prompt.exchange`
 
 ## Deployment
 

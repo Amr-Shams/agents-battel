@@ -84,17 +84,16 @@ function pollResponses() {
     .then(r => r.json())
     .then(data => {
       data.responses.forEach(r => updateAgentCard(r));
-      const respondedTypes = data.responses.map(r => r.agentType);
-      const allPresent = EXPECTED_AGENTS.every(a => respondedTypes.includes(a));
-      const allDone = allPresent && data.responses.every(r => r.status === 'completed');
-      if (allDone && state.roundActive) {
-        state.roundActive = false;
-        clearInterval(state.pollTimer);
-        state.pollTimer = null;
-        setStatus('All agents have responded. Select the best answer.');
-        enablePickButtons();
-      } else if (!state.roundActive) {
-        data.responses.forEach(r => updateAgentCard(r));
+      if (data.done) {
+        if (state.roundActive) {
+          state.roundActive = false;
+          clearInterval(state.pollTimer);
+          state.pollTimer = null;
+          setStatus('All agents have responded. Select the best answer.');
+          enablePickButtons();
+        }
+      } else if (data.responses.length > 0) {
+        setStatus('Agents are refining their answers...');
       }
     })
     .catch(() => {});

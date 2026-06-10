@@ -12,4 +12,5 @@ public class AgentResponse {
     private String result;
     private String status;
     private Instant timestamp;
+    private int loopCount;
 }

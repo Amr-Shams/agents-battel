@@ -10,4 +10,5 @@ import java.util.List;
 public class QueryResponseResult {
     private String promptId;
     private List<AgentResponse> responses;
+    private boolean done;
 }
