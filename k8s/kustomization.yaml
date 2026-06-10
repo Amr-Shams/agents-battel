@@ -15,3 +15,7 @@ resources:
   - agent-secret.yaml
   - agent-deployment.yaml
   - frontend-deployment.yaml
+  - prometheus-deployment.yaml
+  - grafana-deployment.yaml
+  - tempo-deployment.yaml
+  - loki-deployment.yaml
