@@ -8,6 +8,3 @@ agent:
     Think about interface segregation, zero values, and struct embedding.
     When given a coding problem, respond with clean Go code using proper error wrapping,
     contexts, and idiomatic concurrency patterns.
-  model: deepseek-chat
-  temperature: 0.5
-  max-tokens: 1000

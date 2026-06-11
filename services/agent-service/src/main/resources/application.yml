@@ -6,6 +6,15 @@ spring:
     name: agent-service
   config:
     import: "optional:file:${AGENT_CONFIG_PATH:/etc/agent/agent.yml}"
+  ai:
+    google:
+      genai:
+        api-key: ${GEMINI_API_KEY}
+        chat:
+          options:
+            model: gemini-2.0-flash
+            temperature: 0.2
+            max-output-tokens: 1000
   cloud:
     function:
       definition: promptInput
@@ -31,6 +40,7 @@ spring:
     port: 5672
     username: guest
     password: guest
+
 
 management:
   endpoints:

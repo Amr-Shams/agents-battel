@@ -11,14 +11,9 @@ import jakarta.validation.constraints.Positive;
 @Validated
 @ConfigurationProperties(prefix = "agent")
 public class AgentConfig {
-    @NotBlank
-    private String type;
-    @NotBlank
-    private String systemPrompt;
-    @NotBlank
-    private String model;
-    @Positive
-    private double temperature;
-    @Positive
-    private int maxTokens;
+  @NotBlank
+  private String type;
+  @NotBlank
+  private String systemPrompt;
+
 }
